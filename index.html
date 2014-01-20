@@ -1,8 +1,8 @@
 <!doctype html>
 <html>
 <body>
-<div id='voice' style='overflow-y:auto;height:300px;border:1px solid black;padding:10px;'>
-<pre style="font-size:10px;color:red;">
+<div id='voices' style='overflow-y:auto;height:300px;border:1px solid black;padding:10px;color:black;'>
+<pre style="font-size:10px;color:black;">
 ________                                            
 \______ \  __ __  ____    ____   ____  ____   ____  
  |    |  \|  |  \/    \  / ___\_/ __ \/  _ \ /    \ 
@@ -12,23 +12,37 @@ ________
 
 ---</pre>
 </div>
-<input id='say' type='text' value='let this be said'/>
-<button onclick='javascript:;'>voice</button>
-<button onclick='javascript:;'>action</button>
+<input id='enters' type='text' value='let this be said'/>
+<button onclick='javascript:enters();'>enter</button>
 </body>
 <script src='socket.io/socket.io.js'></script>       
 <script>
 
 var players = [];
+var player;
 var s = io.connect();
 
 s.emit('players:create');
 s.on('players:create',function(data){
 	players.push(data.player);
+	player = data.player;
 });
 s.on('players:read',function(data){
 	players = data.players;
 });
+s.on('voices:update',function(data){
+	document.getElementById('voices').innerHTML += data + '<br>';
+});
+
+function enters() {
+	var enter = document.getElementById('enters').value;
+	if (!enter.indexOf('say ')) {
+		s.emit('voices:update',enter.slice(4,enter.length));
+	}
+	if (!enter.indexOf('players ')) {
+		s.emit('players:read',enter.slice(8,players.length));
+	}
+}
 
 </script>
 </html>

@@ -20,9 +20,24 @@ a.io.route('players',{
 			q.session.save(function(){
 				players.push(player);
 				a.io.broadcast('players:create',{player:player});
+				a.io.broadcast('voices:update','Medieval Knight: Welcome, '+player.name+'.');
 			});
 		} else {
 			q.io.emit('players:read',{players:players});
+			a.io.broadcast('voices:update','Medieval Knight: Welcome, '+q.session.player.name+'.');
+		}
+	},
+	read: function (q) {
+		if (players[q]) {
+			q.emit('players:read',players[q]);
+		}
+	}
+})
+
+a.io.route('voices',{
+	update: function (q) {
+		if (q.session.player) {
+			a.io.broadcast('voices:update',q.session.player.name+': '+q.data);
 		}
 	}
 })
